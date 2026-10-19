@@ -1,0 +1,143 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Fraunces com o eixo SOFT: serifa de cantos arredondados, para os títulos */
+@import "@fontsource-variable/fraunces/full.css";
+/* Atkinson Hyperlegible Next: desenhada para leitura fácil, para o texto */
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+    --font-heading: 'Fraunces Variable', Georgia, serif;
+    --color-papel: var(--papel);
+    --color-papel-lilas: var(--papel-lilas);
+    --color-papel-piscina: var(--papel-piscina);
+    --color-tinta: var(--tinta);
+    --color-tinta-suave: var(--tinta-suave);
+    --color-lilas: var(--lilas);
+    --color-lilas-forte: var(--lilas-forte);
+    --color-piscina: var(--piscina);
+    --color-lapis-verde: var(--lapis-verde);
+    --color-lapis-amarelo: var(--lapis-amarelo);
+    --color-lapis-vermelho: var(--lapis-vermelho);
+    --color-lapis-azul: var(--lapis-azul);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /*
+     * Paleta (--papel, --tinta, --lilas...) vem de src/conteudo.ts e é aplicada no
+     * carregamento (src/main.tsx). Os tokens abaixo só apontam para ela.
+     */
+    /* Lápis de cor do detalhe gráfico (como na foto de perfil da Thais) */
+    --lapis-verde: #5fa463;
+    --lapis-amarelo: #eebd3c;
+    --lapis-vermelho: #de5f58;
+    --lapis-azul: #4a86c8;
+
+    --background: var(--papel);
+    --foreground: var(--tinta);
+    --card: #fff;
+    --card-foreground: var(--tinta);
+    --popover: #fff;
+    --popover-foreground: var(--tinta);
+    --primary: var(--lilas-forte);
+    --primary-foreground: #fff;
+    --secondary: var(--papel-lilas);
+    --secondary-foreground: var(--tinta);
+    --muted: var(--papel-lilas);
+    --muted-foreground: var(--tinta-suave);
+    --accent: var(--papel-lilas);
+    --accent-foreground: var(--tinta);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(from var(--tinta) l c h / 13%);
+    --input: oklch(from var(--tinta) l c h / 18%);
+    --ring: var(--lilas-forte);
+    --radius: 0.75rem;
+}
+
+/* Rodapé: fundo na cor da tinta, texto claro */
+.secao-escura {
+    --background: var(--tinta);
+    --foreground: var(--papel);
+    --muted-foreground: color-mix(in oklab, var(--papel) 76%, var(--tinta));
+    --border: oklch(from var(--papel) l c h / 16%);
+    --ring: var(--papel);
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  ::selection {
+    background: var(--piscina);
+    color: var(--tinta);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Títulos: Fraunces com cantos suaves (SOFT 100) e sem as formas "tortas" (WONK 0) */
+  .titulo-display,
+  .titulo-secao,
+  .titulo-item {
+    font-family: var(--font-heading);
+    font-variation-settings: "SOFT" 100, "WONK" 0;
+    text-wrap: balance;
+  }
+  .titulo-display {
+    font-weight: 520;
+    letter-spacing: -0.018em;
+    line-height: 1.04;
+  }
+  .titulo-secao {
+    font-weight: 540;
+    letter-spacing: -0.012em;
+    line-height: 1.1;
+  }
+  .titulo-item {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+}
