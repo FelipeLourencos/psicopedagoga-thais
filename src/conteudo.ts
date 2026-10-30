@@ -52,10 +52,12 @@ export type Selo = {
 }
 
 export type Avaliacao = {
-  /** Quem avaliou, ou um rótulo como "Família atendida". */
+  /** Quem avaliou, ou um rótulo como "Família atendida". Nunca use nome de criança. */
   autor: string
-  /** Onde a avaliação foi feita. Ex.: "Google". */
+  /** Etiqueta discreta com a origem. Ex.: "Avaliação no Google", "Mensagem de uma família". */
   fonte: string
+  /** Mostra as 5 estrelas. Use só em avaliações com nota (Google); mensagens não têm nota. */
+  estrelas: boolean
   texto: string
 }
 
@@ -406,27 +408,59 @@ export const conteudo: Conteudo = {
     itens: [
       {
         autor: "Família atendida",
-        fonte: "Google",
+        fonte: "Avaliação no Google",
+        estrelas: true,
         texto:
           "Ela desenvolveu um trabalho muito completo e profundo com a nossa pequena, que foi o que fez a diferença real no desenvolvimento escolar dela. É de destacar o compromisso da Thais em trabalhar junto com a escola, acompanhando passo a passo cada etapa da evolução.",
       },
       {
         autor: "Família atendida",
-        fonte: "Google",
+        fonte: "Avaliação no Google",
+        estrelas: true,
         texto:
           "Extremamente atenciosa, dedicada e acolhedora. Sempre demonstra sensibilidade para entender as necessidades da nossa filha, criando um ambiente seguro e de confiança. Desde que iniciamos o acompanhamento, notamos avanços significativos no aprendizado.",
       },
       {
         autor: "Família atendida",
-        fonte: "Google",
+        fonte: "Avaliação no Google",
+        estrelas: true,
         texto:
           "A Thais participou de toda a educação infantil da minha filha, desde a adaptação escolar aos 2 anos, que foi muito difícil, até a alfabetização aos 6. Sou eternamente grata por todo o trabalho dela.",
       },
       {
         autor: "Família atendida",
-        fonte: "Google",
+        fonte: "Avaliação no Google",
+        estrelas: true,
         texto:
           "Tem um jeito muito especial de falar com as crianças. Elas se encantam com ela e absorvem as orientações de um jeito lúdico e simples.",
+      },
+      {
+        autor: "Família atendida",
+        fonte: "Avaliação no Google",
+        estrelas: true,
+        texto:
+          "Excelente profissional! Atualizada, dedicada, comprometida e com foco no desenvolvimento integral das crianças. Suas orientações são claras e objetivas, baseadas no olhar sensível que tem por cada criança.",
+      },
+      {
+        autor: "Família atendida",
+        fonte: "Mensagem de uma família",
+        estrelas: false,
+        texto:
+          "Olá! Passando aqui para compartilhar o progress report [da nossa filha], gente, que alegria, muitos A e B e somente 1 C. Thaís, gratidão por todo o trabalho, empenho e dedicação desde sempre.",
+      },
+      {
+        autor: "Família atendida",
+        fonte: "Mensagem de uma família",
+        estrelas: false,
+        texto:
+          "Hoje está sendo a minha GRATIDÃO por tudo que está acontecendo com [ela]. Obrigada pela profissional de excelência que está sendo para ela no aprendizado. Gratidão!",
+      },
+      {
+        autor: "Família atendida",
+        fonte: "Mensagem de uma família",
+        estrelas: false,
+        texto:
+          "Gostaria de agradecer formalmente pela parceria, pelo profissionalismo e pelas orientações tão assertivas que nos deu nos últimos meses. O seu trabalho psicopedagógico foi um divisor de águas. Ele nos deu as ferramentas certas para compreender e apoiar as necessidades de desenvolvimento da nossa filha, integrando de forma leve a escola e a rotina de estudos. Parabéns pelo trabalho tão nobre e essencial. Nossa eterna gratidão!",
       },
     ],
   },
@@ -439,6 +473,21 @@ export const conteudo: Conteudo = {
         pergunta: "O que faz uma psicopedagoga?",
         resposta:
           "A psicopedagoga busca compreender como a criança aprende, quais são suas potencialidades e quais dificuldades podem estar interferindo nesse processo. Por meio da avaliação psicopedagógica, investiga diferentes aspectos da aprendizagem, como leitura, escrita, matemática, atenção, memória e organização. A partir dessa compreensão, planeja intervenções e utiliza jogos e recursos lúdicos para ajudar a criança a desenvolver habilidades e construir estratégias para aprender.",
+      },
+      {
+        pergunta: "Qual a diferença entre avaliação e intervenção psicopedagógica?",
+        resposta:
+          "Na avaliação, são identificadas as principais dificuldades cognitivas e pedagógicas da criança. Em um segundo momento, é elaborado um plano de intervenção personalizado de acordo com as necessidades dela, a partir das dificuldades identificadas na avaliação.",
+      },
+      {
+        pergunta: "A partir de qual idade as crianças são atendidas?",
+        resposta:
+          "Realizo atendimento com crianças de 6 a 10 anos.",
+      },
+      {
+        pergunta: "Quanto tempo duram as sessões?",
+        resposta:
+          "Cada sessão tem a duração de 50 minutos. Ao longo do acompanhamento psicopedagógico, são realizados também atendimentos com a família e a equipe escolar para alinhar objetivos e estratégias para apoiar o desenvolvimento da criança.",
       },
       {
         pergunta: "Como é a primeira conversa?",

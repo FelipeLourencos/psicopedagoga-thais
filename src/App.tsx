@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ArrowUpRight,
   AtSign,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   MapPin,
-  MessageCircle,
   MessageSquareHeart,
   PencilLine,
   School,
   Star,
   type LucideIcon,
 } from "lucide-react"
+import { FaWhatsapp } from "react-icons/fa"
 import { MotionConfig, motion, useReducedMotion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
@@ -116,7 +118,7 @@ function BotaoWhatsapp({ className }: { className?: string }) {
   if (!temWhatsapp) return null
   return (
     <Botao href={WHATSAPP_URL} className={className}>
-      <MessageCircle className="size-[1.15rem]" aria-hidden /> {botoes.principal}
+      <FaWhatsapp className="size-[1.2rem]" aria-hidden /> {botoes.principal}
     </Botao>
   )
 }
@@ -234,8 +236,8 @@ function Header() {
         </nav>
 
         {temWhatsapp && (
-          <Botao href={WHATSAPP_URL} className="hidden h-11 px-5 text-[0.95rem] sm:inline-flex">
-            {botoes.principal}
+          <Botao href={WHATSAPP_URL} className="hidden h-11 gap-2 px-5 text-[0.95rem] sm:inline-flex">
+            <FaWhatsapp className="size-[1.1rem]" aria-hidden /> {botoes.principal}
           </Botao>
         )}
       </div>
@@ -505,29 +507,96 @@ function QuandoProcurar() {
   )
 }
 
+/**
+ * Grade de 2 colunas no computador. No celular (até 767px) a mesma lista vira um
+ * carrossel deslizante, com setas e bolinhas, para a seção não ficar comprida demais.
+ */
 function Avaliacoes() {
+  const lista = useRef<HTMLUListElement>(null)
+  const [atual, setAtual] = useState(0)
+  const menosMovimento = useReducedMotion()
+  const total = avaliacoes.itens.length
+
   if (!temAvaliacoes) return null
+
+  const aoRolar = () => {
+    const el = lista.current
+    const primeiro = el?.firstElementChild as HTMLElement | null
+    if (!el || !primeiro) return
+    const passo = primeiro.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0")
+    const noFim = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+    setAtual(noFim ? total - 1 : Math.round(el.scrollLeft / passo))
+  }
+
+  const irPara = (i: number) => {
+    const el = lista.current
+    const item = el?.children[i] as HTMLElement | undefined
+    if (!el || !item) return
+    setAtual(i)
+    el.scrollTo({ left: item.offsetLeft, behavior: menosMovimento ? "auto" : "smooth" })
+  }
+
+  const seta =
+    "flex size-11 items-center justify-center rounded-full border-[1.5px] border-tinta/25 transition-[border-color,opacity] hover:border-tinta/60 disabled:pointer-events-none disabled:opacity-35"
 
   return (
     <section id="avaliacoes" className={SECAO}>
       <div className={CONTAINER}>
         <h2 className="titulo-secao text-[2.25rem] sm:text-5xl">{avaliacoes.titulo}</h2>
 
-        <ul className="mt-12 grid gap-5 sm:mt-16 md:grid-cols-2">
+        <ul
+          ref={lista}
+          onScroll={aoRolar}
+          className="relative mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] sm:mt-16 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible [&::-webkit-scrollbar]:hidden"
+        >
           {avaliacoes.itens.map((a, i) => (
-            <li key={`${a.autor}-${i}`}>
-              <figure className="flex h-full flex-col rounded-3xl border border-border bg-white p-7 sm:p-9">
-                <Estrelas />
+            <li key={`${a.autor}-${i}`} className="w-[88%] shrink-0 snap-start md:w-auto">
+              <figure className="flex h-full flex-col rounded-3xl border border-border bg-white p-6 sm:p-9">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                  {a.estrelas && <Estrelas />}
+                  <span className="rounded-full bg-papel-lilas px-3 py-1 text-[0.8rem] text-tinta-suave">
+                    {a.fonte}
+                  </span>
+                </div>
                 <blockquote className="mt-5 flex-1 text-[1.1rem] leading-relaxed text-pretty">
                   <p>“{a.texto}”</p>
                 </blockquote>
-                <figcaption className="mt-6 text-[0.95rem] text-tinta-suave">
-                  {a.autor} · {a.fonte}
-                </figcaption>
+                <figcaption className="mt-6 text-[0.95rem] text-tinta-suave">{a.autor}</figcaption>
               </figure>
             </li>
           ))}
         </ul>
+
+        {total > 1 && (
+          // Alinhado à esquerda: à direita fica o botão flutuante do WhatsApp
+          <div className="mt-6 flex items-center gap-1 md:hidden">
+            <button type="button" onClick={() => irPara(atual - 1)} disabled={atual === 0} aria-label="Avaliação anterior" className={seta}>
+              <ChevronLeft className="size-5" aria-hidden />
+            </button>
+            <div className="flex">
+              {avaliacoes.itens.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => irPara(i)}
+                  aria-label={`Mostrar avaliação ${i + 1} de ${total}`}
+                  aria-current={i === atual ? "true" : undefined}
+                  className="flex size-5 items-center justify-center"
+                >
+                  <span
+                    className={cn(
+                      "size-2 rounded-full transition-colors",
+                      i === atual ? "bg-lilas-forte" : "bg-tinta/20"
+                    )}
+                  />
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={() => irPara(atual + 1)} disabled={atual === total - 1} aria-label="Próxima avaliação" className={seta}>
+              <ChevronRight className="size-5" aria-hidden />
+            </button>
+          </div>
+        )}
 
         {avaliacoes.links.length > 0 && (
           <p className="mt-9 flex flex-wrap gap-x-6 gap-y-2">
@@ -666,7 +735,7 @@ function WhatsappFlutuante() {
       )}
       tabIndex={visivel ? undefined : -1}
     >
-      <MessageCircle className="size-6" aria-hidden />
+      <FaWhatsapp className="size-7" aria-hidden />
     </a>
   )
 }
@@ -714,7 +783,7 @@ function Rodape() {
           <p className={titulo}>Contato</p>
           {temWhatsapp && (
             <a href={WHATSAPP_URL} {...externo(WHATSAPP_URL)} className={link}>
-              <MessageCircle className="size-4" aria-hidden /> WhatsApp
+              <FaWhatsapp className="size-4" aria-hidden /> WhatsApp
             </a>
           )}
           {negocio.instagram.link && (
