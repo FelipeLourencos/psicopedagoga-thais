@@ -2,10 +2,7 @@ import { useEffect, useState } from "react"
 import {
   ArrowUpRight,
   AtSign,
-  Backpack,
-  BookOpen,
   Clock,
-  Focus,
   MapPin,
   MessageCircle,
   MessageSquareHeart,
@@ -18,7 +15,7 @@ import { MotionConfig, motion, useReducedMotion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { EASE_EDITORIAL } from "@/lib/motion"
-import { conteudo, type Icone } from "@/conteudo"
+import { conteudo, type Foto, type Icone } from "@/conteudo"
 import {
   Accordion,
   AccordionContent,
@@ -35,6 +32,7 @@ const {
   cabecalho,
   topo,
   sobre,
+  recursos,
   comoFunciona,
   quandoProcurar,
   avaliacoes,
@@ -45,6 +43,7 @@ const {
 
 /** Seções e botões só existem quando o conteudo.ts traz dados para eles. */
 const temSobre = sobre.paragrafos.length > 0
+const temRecursos = recursos.fotos.length > 0
 const temComoFunciona = comoFunciona.passos.length > 0
 const temQuandoProcurar = quandoProcurar.itens.length > 0
 const temAvaliacoes = avaliacoes.itens.length > 0
@@ -69,10 +68,6 @@ const ICONES: Record<Icone, LucideIcon> = {
   avaliacoes: MessageSquareHeart,
   escola: School,
   local: MapPin,
-  leitura: BookOpen,
-  alfabetizacao: PencilLine,
-  atencao: Focus,
-  adaptacao: Backpack,
 }
 
 /** Os quatro lápis da foto de perfil da Thais, na ordem em que aparecem. */
@@ -248,6 +243,30 @@ function Header() {
   )
 }
 
+/** Foto com a versão menor para celular (até 767px), quando houver. */
+function Imagem({
+  foto,
+  className,
+  prioridade = false,
+}: {
+  foto: Foto
+  className?: string
+  prioridade?: boolean
+}) {
+  return (
+    <picture className="contents">
+      {foto.srcCelular && <source media="(max-width: 767px)" srcSet={foto.srcCelular} />}
+      <img
+        src={foto.src}
+        alt={foto.alt}
+        className={className}
+        loading={prioridade ? "eager" : "lazy"}
+        fetchPriority={prioridade ? "high" : undefined}
+      />
+    </picture>
+  )
+}
+
 /** Única animação automática da página: a entrada do topo, em sequência, com os traços de lápis. */
 const entrada = (ordem: number) => ({
   initial: { opacity: 0, y: 16 },
@@ -255,66 +274,26 @@ const entrada = (ordem: number) => ({
   transition: { duration: 0.9, delay: 0.1 + ordem * 0.12, ease: EASE_EDITORIAL },
 })
 
-/** Escolhe a versão do vídeo uma vez, no carregamento: 960px no celular, 1920px no computador. */
-const celular = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
-
-/**
- * Vídeo mudo em loop atrás do topo, coberto por uma camada creme só o bastante para o
- * título continuar legível. Com "reduzir movimento" ativado, fica só o poster parado.
- */
-function VideoFundoTopo() {
-  const menosMovimento = useReducedMotion()
-  const { src, srcCelular, poster, posterCelular } = topo.videoFundo
-  if (!src) return null
-
-  const video = celular && srcCelular ? srcCelular : src
-  const imagem = celular && posterCelular ? posterCelular : poster
-  // Mão e mapa ficam à direita do quadro, longe do título
-  const enquadramento = "size-full object-cover object-[62%_center]"
-
-  return (
-    <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
-      {menosMovimento ? (
-        <img src={imagem} alt="" className={enquadramento} />
-      ) : (
-        <video
-          src={video}
-          poster={imagem}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className={enquadramento}
-        />
-      )}
-      {/* Mais forte atrás do texto; embaixo, funde com a cor do papel */}
-      <div className="absolute inset-0 bg-papel/72 lg:bg-transparent lg:bg-linear-to-r lg:from-papel/88 lg:via-papel/62 lg:to-papel/15" />
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-b from-transparent to-papel" />
-    </div>
-  )
-}
-
 function Topo() {
   return (
-    <section
-      id="topo"
-      className="relative isolate flex min-h-[88svh] flex-col justify-center pt-28 pb-14 sm:pt-32 lg:pt-36 lg:pb-16"
-    >
-      <VideoFundoTopo />
-      <div className={CONTAINER}>
-        <div className="max-w-[40rem]">
-          <TracosTopo className="mb-6 w-36 sm:w-44" />
+    <section id="topo" className="pt-28 pb-14 sm:pt-32 lg:pt-36 lg:pb-16">
+      <div
+        className={cn(
+          CONTAINER,
+          "grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16"
+        )}
+      >
+        <div>
           <motion.h1
             {...entrada(0)}
-            className="titulo-display text-[2.55rem] sm:text-6xl lg:text-[4.35rem]"
+            className="titulo-display text-[2.55rem] sm:text-6xl lg:text-[4.1rem]"
           >
             {semPalavraSolta(topo.titulo)}
           </motion.h1>
           {topo.texto && (
             <motion.p
               {...entrada(1)}
-              className="mt-6 max-w-[42ch] text-[1.15rem] leading-relaxed text-pretty text-tinta-suave sm:text-xl"
+              className="mt-6 text-[1.2rem] font-semibold text-lilas-forte sm:text-[1.35rem]"
             >
               {topo.texto}
             </motion.p>
@@ -328,11 +307,26 @@ function Topo() {
             )}
           </motion.div>
         </div>
+
+        {topo.foto && (
+          <motion.div
+            {...entrada(1.5)}
+            className="relative mx-auto w-full max-w-[26rem] lg:mr-0"
+          >
+            <Imagem
+              foto={topo.foto}
+              prioridade
+              className="aspect-square w-full rounded-[2rem] object-cover object-[50%_30%] md:aspect-[4/5]"
+            />
+            {/* Os traços saem da mesa da foto, nas cores das canetinhas que a Thais segura */}
+            <TracosTopo className="absolute -bottom-7 -left-3 w-40 -rotate-3 sm:w-48 lg:-bottom-9 lg:-left-16 lg:w-60" />
+          </motion.div>
+        )}
       </div>
 
       {topo.selos.length > 0 && (
         <div className={CONTAINER}>
-          <ul className="mt-12 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-border pt-8 sm:mt-16 md:grid-cols-4">
+          <ul className="mt-16 grid grid-cols-2 gap-x-5 gap-y-6 border-t border-border pt-8 sm:mt-20 md:grid-cols-4">
             {topo.selos.map(({ texto, icone }) => {
               const Icon = ICONES[icone]
               return (
@@ -353,26 +347,37 @@ function Topo() {
 
 function Sobre() {
   if (!temSobre) return null
+  const [primeiro, ...demais] = sobre.paragrafos
 
   return (
     <section id="sobre" className={cn("bg-papel-lilas", SECAO)}>
-      <div className={cn(CONTAINER, "grid items-center gap-12 lg:grid-cols-[5fr_6fr] lg:gap-20")}>
+      <div className={cn(CONTAINER, "grid gap-12 lg:grid-cols-[5fr_7fr] lg:gap-20")}>
         {sobre.foto && (
-          <picture>
-            {sobre.foto.srcCelular && <source media="(max-width: 767px)" srcSet={sobre.foto.srcCelular} />}
-            <img
-              src={sobre.foto.src}
-              alt={sobre.foto.alt}
-              className="aspect-[4/5] w-full rounded-[2rem] object-cover object-[50%_75%] max-lg:max-h-[26rem] sm:max-lg:aspect-[4/3]"
-              loading="lazy"
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <Imagem
+              foto={sobre.foto}
+              className="aspect-[6/5] w-full rounded-[2rem] object-cover object-[60%_30%] md:aspect-[4/5]"
             />
-          </picture>
+          </div>
         )}
         <div>
           <h2 className="titulo-secao text-[2.25rem] sm:text-5xl">{sobre.titulo}</h2>
-          {sobre.subtitulo && <p className="mt-3 text-lg font-semibold text-lilas-forte">{sobre.subtitulo}</p>}
-          <div className="mt-7 max-w-[58ch] space-y-5 text-[1.08rem] leading-relaxed">
-            {sobre.paragrafos.map((p) => (
+          <div className="mt-7 max-w-[60ch] space-y-5 text-[1.08rem] leading-relaxed">
+            <p>{primeiro}</p>
+            {sobre.destaque && (
+              // A frase já está no primeiro parágrafo; o destaque é só visual
+              <div aria-hidden className="py-6 sm:py-8">
+                <p className="titulo-display max-w-[15ch] text-[2.15rem] text-lilas-forte sm:text-[2.9rem]">
+                  {sobre.destaque}
+                </p>
+                <div className="mt-5 flex gap-1">
+                  {LAPIS.map((cor) => (
+                    <Risco key={cor} cor={cor} className="h-3 w-10" />
+                  ))}
+                </div>
+              </div>
+            )}
+            {demais.map((p) => (
               <p key={p}>{p}</p>
             ))}
           </div>
@@ -382,30 +387,75 @@ function Sobre() {
   )
 }
 
+/**
+ * Galeria em mosaico. No computador: a primeira foto grande à esquerda, a segunda
+ * horizontal em cima à direita e as duas últimas lado a lado embaixo. No celular: 2x2.
+ */
+function AprenderBrincando() {
+  if (!temRecursos) return null
+  // A grande ocupa duas linhas; a altura das linhas vem da horizontal (8:5) e das verticais (4:5)
+  const lugar = [
+    "lg:col-span-2 lg:row-span-2",
+    "lg:col-span-2 lg:aspect-[8/5]",
+    "lg:aspect-[4/5]",
+    "lg:aspect-[4/5]",
+  ]
+
+  return (
+    <section id="aprender-brincando" className={SECAO}>
+      <div className={CONTAINER}>
+        <h2 className="titulo-secao text-[2.25rem] sm:text-5xl">{recursos.titulo}</h2>
+        {recursos.texto && <p className="mt-4 max-w-[50ch] text-lg text-tinta-suave">{recursos.texto}</p>}
+
+        <ul className="mt-10 grid grid-cols-2 gap-3 sm:mt-14 sm:gap-4 lg:grid-cols-4">
+          {recursos.fotos.map((foto, i) => (
+            <li
+              key={foto.src}
+              className={cn("relative aspect-square overflow-hidden rounded-[1.25rem] sm:rounded-[1.75rem] lg:aspect-auto", lugar[i])}
+            >
+              <Imagem foto={foto} className="absolute inset-0 size-full object-cover object-[50%_25%]" />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
 function ComoFunciona() {
   if (!temComoFunciona) return null
 
   return (
-    <section id="como-funciona" className={SECAO}>
-      <div className={CONTAINER}>
-        <h2 className="titulo-secao max-w-[20ch] text-[2.25rem] sm:text-5xl">{comoFunciona.titulo}</h2>
-        {comoFunciona.texto && <p className="mt-4 max-w-[50ch] text-lg text-tinta-suave">{comoFunciona.texto}</p>}
+    <section id="como-funciona" className={cn("bg-papel-piscina", SECAO)}>
+      <div className={cn(CONTAINER, "grid items-center gap-12 lg:grid-cols-[6fr_5fr] lg:gap-20")}>
+        {comoFunciona.foto && (
+          <div className="lg:order-last">
+            <Imagem
+              foto={comoFunciona.foto}
+              className="aspect-[6/5] w-full rounded-[2rem] object-cover object-[60%_30%] md:aspect-[4/5]"
+            />
+          </div>
+        )}
+        <div>
+          <h2 className="titulo-secao max-w-[20ch] text-[2.25rem] sm:text-5xl">{comoFunciona.titulo}</h2>
 
-        <ol className="mt-12 grid gap-x-10 gap-y-12 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
-          {comoFunciona.passos.map((passo, i) => (
-            <li key={passo.titulo}>
-              <span className="titulo-display block text-[3.25rem] leading-none text-lilas" aria-hidden>
-                {i + 1}
-              </span>
-              <Risco cor={LAPIS[i % LAPIS.length]} className="mt-2" />
-              <h3 className="titulo-item mt-5 text-[1.3rem]">
-                <span className="sr-only">Passo {i + 1}: </span>
-                {passo.titulo}
-              </h3>
-              <p className="mt-3 leading-relaxed text-tinta-suave">{passo.texto}</p>
-            </li>
-          ))}
-        </ol>
+          <ol className="mt-10 border-t border-tinta/15 sm:mt-12">
+            {comoFunciona.passos.map((passo, i) => (
+              <li key={passo} className="flex items-start gap-5 border-b border-tinta/15 py-6 sm:gap-7">
+                <span className="w-14 shrink-0 sm:w-16" aria-hidden>
+                  <span className="titulo-display block text-[2.75rem] leading-none text-lilas-forte sm:text-[3.25rem]">
+                    {i + 1}
+                  </span>
+                  <Risco cor={LAPIS[i % LAPIS.length]} className="mt-1.5 h-3 w-12" />
+                </span>
+                <h3 className="titulo-item pt-1 text-[1.25rem] sm:pt-2 sm:text-[1.4rem]">
+                  <span className="sr-only">Passo {i + 1}: </span>
+                  {passo}
+                </h3>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   )
@@ -415,34 +465,39 @@ function QuandoProcurar() {
   if (!temQuandoProcurar) return null
 
   return (
-    <section id="quando-procurar" className={cn("bg-papel-piscina", SECAO)}>
+    <section id="quando-procurar" className={cn("bg-papel-lilas", SECAO)}>
       <div className={CONTAINER}>
         <h2 className="titulo-secao max-w-[20ch] text-[2.25rem] sm:text-5xl">{quandoProcurar.titulo}</h2>
         {quandoProcurar.texto && (
-          <p className="mt-4 max-w-[50ch] text-lg text-tinta-suave">{quandoProcurar.texto}</p>
+          <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-tinta-suave">{quandoProcurar.texto}</p>
         )}
 
-        <ul className="mt-12 grid gap-5 sm:mt-16 md:grid-cols-2">
-          {quandoProcurar.itens.map(({ icone, titulo, texto }) => {
-            const Icon = ICONES[icone]
-            return (
-              <li key={titulo} className="flex flex-col gap-4 rounded-3xl bg-white p-6 sm:flex-row sm:gap-5 sm:p-8">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-papel-lilas text-lilas-forte">
-                  <Icon className="size-[1.35rem]" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="titulo-item text-[1.3rem]">{titulo}</h3>
-                  <p className="mt-2.5 leading-relaxed text-tinta-suave">{texto}</p>
-                </div>
-              </li>
-            )
-          })}
+        <h3 className="titulo-item mt-12 max-w-[34ch] text-[1.35rem] sm:mt-14 sm:text-[1.55rem]">
+          {quandoProcurar.subtitulo}
+        </h3>
+        <ul className="mt-8 grid gap-x-12 gap-y-5 md:grid-cols-2">
+          {quandoProcurar.itens.map((item) => (
+            <li key={item} className="flex gap-4 leading-relaxed">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-lilas-forte">
+                <PencilLine className="size-[1.05rem]" aria-hidden />
+              </span>
+              <span className="pt-1">{item}</span>
+            </li>
+          ))}
         </ul>
 
-        {temWhatsapp && (
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <BotaoWhatsapp />
-            <p className="text-tinta-suave">Ficou em dúvida se é o caso do seu filho? Vale conversar.</p>
+        {quandoProcurar.nota && (
+          <p className="mt-12 max-w-[75ch] rounded-2xl bg-white/75 px-6 py-5 text-[0.98rem] leading-relaxed text-tinta-suave">
+            {quandoProcurar.nota}
+          </p>
+        )}
+
+        {(quandoProcurar.fechamento || temWhatsapp) && (
+          <div className="mt-12 flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+            {quandoProcurar.fechamento && (
+              <p className="max-w-[56ch] text-[1.15rem] leading-relaxed text-pretty">{quandoProcurar.fechamento}</p>
+            )}
+            <BotaoWhatsapp className="self-start lg:self-auto" />
           </div>
         )}
       </div>
@@ -694,6 +749,7 @@ export default function App() {
         <main>
           <Topo />
           <Sobre />
+          <AprenderBrincando />
           <ComoFunciona />
           <QuandoProcurar />
           <Avaliacoes />

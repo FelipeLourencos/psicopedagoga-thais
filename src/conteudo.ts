@@ -11,8 +11,7 @@
  * - Fotos podem ser um endereço da internet (https://...) ou um arquivo dentro de
  *   public/, escrito a partir da barra. Ex.: public/images/sala.webp vira "/images/sala.webp".
  * - "alt" é a descrição da foto para leitores de tela e para o Google.
- * - Selos, passos, cards e avaliações ficam melhores com número par de itens.
- * - Trechos marcados com "A CONFIRMAR" precisam ser validados com a Thais.
+ * - Selos e avaliações ficam melhores com número par de itens.
  * - Se faltar algum campo obrigatório, o editor sublinha em vermelho e o
  *   `npm run build` acusa o erro.
  */
@@ -44,31 +43,12 @@ export type Horario = {
   horas: string
 }
 
-/** Ícones disponíveis para selos e cards. */
-export type Icone =
-  | "estrela"
-  | "avaliacoes"
-  | "escola"
-  | "local"
-  | "leitura"
-  | "alfabetizacao"
-  | "atencao"
-  | "adaptacao"
+/** Ícones disponíveis para os selos. */
+export type Icone = "estrela" | "avaliacoes" | "escola" | "local"
 
 export type Selo = {
   texto: string
   icone: Icone
-}
-
-export type Passo = {
-  titulo: string
-  texto: string
-}
-
-export type Card = {
-  icone: Icone
-  titulo: string
-  texto: string
 }
 
 export type Avaliacao = {
@@ -147,11 +127,8 @@ export type Conteudo = {
     titulo: string
     /** Opcional: uma linha de apoio abaixo do título. "" esconde. */
     texto: string
-    /**
-     * Opcional: vídeo mudo em loop no fundo do topo, sob uma camada creme. src "" esconde.
-     * As versões "Celular" (960px) são usadas em telas de até 767px.
-     */
-    videoFundo: { src: string; srcCelular: string; poster: string; posterCelular: string }
+    /** Opcional: foto vertical ao lado do título (4:5 no computador, quadrada no celular). null esconde. */
+    foto: Foto | null
     /** Opcional: selos abaixo do topo. Use número par. [] esconde. */
     selos: Selo[]
   }
@@ -159,29 +136,46 @@ export type Conteudo = {
   /** Seção "Sobre". Sem parágrafos, a seção some. */
   sobre: {
     titulo: string
-    /** Linha abaixo do título (formação). "" esconde. */
-    subtitulo: string
     paragrafos: string[]
-    /** Opcional: foto vertical (4:5). null esconde. */
+    /** Opcional: frase em destaque, grande e na cor principal, depois do primeiro parágrafo. "" esconde. */
+    destaque: string
+    /** Opcional: foto vertical (4:5 no computador, 6:5 no celular). null esconde. */
     foto: Foto | null
   }
 
-  /** Passo a passo do atendimento. Sem passos, a seção some. */
-  comoFunciona: {
+  /** Galeria dos jogos e materiais. Sem fotos, a seção some. */
+  recursos: {
     titulo: string
     /** Opcional: frase abaixo do título. "" esconde. */
     texto: string
-    /** Use número par de passos. */
-    passos: Passo[]
+    /**
+     * Quatro fotos, nesta ordem: destaque (4:5), horizontal (5:3) e duas verticais (4:5).
+     * No celular, todas viram quadradas (grade 2x2).
+     */
+    fotos: Foto[]
   }
 
-  /** Situações em que vale procurar ajuda. Sem itens, a seção some. */
+  /** Passo a passo do atendimento (numerado na ordem da lista). Sem passos, a seção some. */
+  comoFunciona: {
+    titulo: string
+    passos: string[]
+    /** Opcional: foto vertical ao lado dos passos. null esconde. */
+    foto: Foto | null
+  }
+
+  /** Quando vale procurar ajuda. Sem itens, a seção some. */
   quandoProcurar: {
     titulo: string
-    /** Opcional: frase abaixo do título. "" esconde. */
+    /** Opcional: parágrafo de introdução. "" esconde. */
     texto: string
-    /** Use número par de cards. */
-    itens: Card[]
+    /** Frase que abre a lista. */
+    subtitulo: string
+    /** Sinais, um por item da lista. */
+    itens: string[]
+    /** Opcional: observação em caixa clara depois da lista. "" esconde. */
+    nota: string
+    /** Opcional: texto ao lado do botão do WhatsApp, no fim da seção. "" esconde. */
+    fechamento: string
   }
 
   /** Avaliações. Sem itens, a seção some. */
@@ -305,13 +299,11 @@ export const conteudo: Conteudo = {
   // ===== Topo =====
   topo: {
     titulo: "Ajudo seu filho a superar desafios de aprendizagem.",
-    texto: "Atendimento psicopedagógico na Pompeia, em parceria com a família e a escola.",
-    // Vídeo do Pexels (7431749): mão colorindo um mapa com lápis de cor, sem rostos
-    videoFundo: {
-      src: "/videos/topo.mp4",
-      srcCelular: "/videos/topo-mobile.mp4",
-      poster: "/videos/topo-poster.webp",
-      posterCelular: "/videos/topo-poster-mobile.webp",
+    texto: "Atendimento Psicopedagógico Clínico",
+    foto: {
+      src: "/images/thais-canetas.webp",
+      srcCelular: "/images/thais-canetas-mobile.webp",
+      alt: "Thais Oliveira sorrindo, segurando canetinhas verde, amarela, vermelha e azul",
     },
     selos: [
       { texto: "5 estrelas no Google", icone: "estrela" },
@@ -323,79 +315,87 @@ export const conteudo: Conteudo = {
 
   // ===== Sobre =====
   sobre: {
-    titulo: "Thais Oliveira",
-    subtitulo: "Pedagoga e psicopedagoga clínica e institucional",
+    titulo: "Olá, sou Thais Oliveira!",
     paragrafos: [
-      "Sou pedagoga e psicopedagoga, com atuação clínica e institucional. No consultório da Pompeia, acompanho crianças que estão encontrando dificuldade para aprender, seja na leitura, na escrita, na atenção ou na adaptação à escola.",
-      "O trabalho não fica restrito às sessões. Converso com a família e, com a autorização dos pais, com coordenadores e professores, para que todos sigam na mesma direção e a evolução da criança apareça também em sala de aula.",
+      "Sou formada em Pedagogia, pós-graduada em Psicopedagogia e especialista em Neurociências Aplicadas à Educação. Atuo na área da educação há mais de 10 anos e, ao longo dessa trajetória, uma convicção se tornou cada vez mais forte: toda criança é capaz de aprender.",
+      "Para que isso aconteça, é fundamental olhar com atenção para suas necessidades, conhecer seu perfil de aprendizagem e compreender quais caminhos e estratégias podem ajudá-la a desenvolver suas potencialidades.",
+      "Sabe aquela criança que muitas vezes é chamada de “preguiçosa” porque evita as tarefas ou parece não se esforçar? Esse comportamento pode ser uma forma de mostrar que algo está difícil e que ela precisa de ajuda. Por isso, acredito na importância de olhar além das dificuldades, sem rotular a criança.",
+      "No consultório, realizo avaliação e intervenção psicopedagógica com crianças que apresentam dificuldades na leitura, na escrita e na matemática e transtornos do neurodesenvolvimento. Também trabalho com a intervenção cognitiva, buscando desenvolver habilidades que sustentam a aprendizagem, como atenção, memória, planejamento, flexibilidade cognitiva, entre outros.",
+      "Os jogos e os recursos lúdicos fazem parte desse processo. Por meio deles, a criança pode experimentar, criar estratégias e aprender de uma maneira significativa e envolvente.",
+      "Acredito, ainda, que o acompanhamento se fortalece quando família e escola caminham juntas. Por isso, mantenho um diálogo constante com os responsáveis, professores e coordenadores, para que possamos compartilhar orientações e favorecer o desenvolvimento da criança em diferentes contextos.",
     ],
-    // TROCAR pela foto da Thais (hoje é uma foto do Pexels de uma mesa de atividades)
+    destaque: "Toda criança é capaz de aprender.",
     foto: {
-      src: "/images/mesa-atividades.webp",
-      srcCelular: "/images/mesa-atividades-mobile.webp",
-      alt: "Mesa branca com jogos e quebra-cabeças de madeira",
+      src: "/images/thais-livro.webp",
+      srcCelular: "/images/thais-livro-mobile.webp",
+      alt: "Thais Oliveira sorrindo enquanto folheia um livro infantil ilustrado",
     },
   },
 
-  // ===== Como funciona =====
-  // A CONFIRMAR: etapas e descrições com a Thais
-  comoFunciona: {
-    titulo: "Como funciona o acompanhamento",
-    texto: "Cada etapa é combinada com os pais antes de começar.",
-    passos: [
+  // ===== Aprender brincando =====
+  recursos: {
+    titulo: "Aprender brincando",
+    texto: "Os jogos e os recursos lúdicos fazem parte desse processo.",
+    fotos: [
       {
-        titulo: "Primeira conversa com a família",
-        texto:
-          "Os pais contam o que estão percebendo em casa e o que a escola tem relatado. É o momento de tirar dúvidas e entender se o acompanhamento faz sentido.",
+        src: "/images/thais-chao.webp",
+        srcCelular: "/images/thais-chao-mobile.webp",
+        alt: "Thais sentada no chão do consultório, brincando com dinossauros e letras móveis coloridas",
       },
       {
-        titulo: "Avaliação psicopedagógica",
-        texto:
-          "Alguns encontros com a criança, com atividades e jogos, para entender como ela aprende e onde estão as dificuldades. Depois, a família recebe uma devolutiva.",
+        src: "/images/mesa-materiais.webp",
+        srcCelular: "/images/mesa-materiais-mobile.webp",
+        alt: "Mesa com livro de atividades de leitura e escrita, labirinto em esfera, lápis de cor e régua de formas",
       },
       {
-        titulo: "Acompanhamento semanal",
-        texto:
-          "Sessões semanais com atividades planejadas para o que a criança precisa desenvolver, e conversas com os pais sobre a evolução.",
+        src: "/images/thais-jogos.webp",
+        srcCelular: "/images/thais-jogos-mobile.webp",
+        alt: "Thais apoiada numa pilha de jogos de tabuleiro",
       },
       {
-        titulo: "Contato com a escola",
-        texto:
-          "Com a autorização da família, a Thais conversa com coordenadores e professores para alinhar o que é feito no consultório com o que acontece em sala.",
+        src: "/images/thais-labirinto.webp",
+        srcCelular: "/images/thais-labirinto-mobile.webp",
+        alt: "Thais segurando um labirinto em esfera",
       },
     ],
+  },
+
+  // ===== Como funciona =====
+  comoFunciona: {
+    titulo: "Como funciona o atendimento",
+    passos: [
+      "Entrevista contratual e anamnese com os pais",
+      "Avaliação psicopedagógica",
+      "Relatórios e devolutivas para os pais e a equipe escolar",
+      "Alinhamento de estratégias e direcionamento do plano de intervenção",
+    ],
+    foto: {
+      src: "/images/thais-maos.webp",
+      srcCelular: "/images/thais-maos-mobile.webp",
+      alt: "Thais Oliveira sorrindo e segurando as mãos de uma mãe, na mesa do consultório",
+    },
   },
 
   // ===== Quando procurar =====
   quandoProcurar: {
     titulo: "Quando procurar uma psicopedagoga",
-    texto: "Algumas situações que costumam levar as famílias a buscar ajuda.",
+    texto:
+      "Cada criança tem a sua maneira de aprender e pode precisar de diferentes tipos de apoio ao longo de sua trajetória escolar. Em alguns momentos, porém, as dificuldades persistem ou começam a afetar sua confiança, sua motivação e sua relação com a aprendizagem, além de provocar baixo desempenho escolar e social.",
+    subtitulo: "A avaliação psicopedagógica pode ser indicada quando a criança:",
     itens: [
-      {
-        icone: "leitura",
-        titulo: "Dificuldade de leitura e escrita",
-        texto:
-          "A criança troca ou esquece letras, lê com muito esforço ou evita ler em voz alta, e a escrita fica abaixo do que ela consegue dizer.",
-      },
-      {
-        icone: "alfabetizacao",
-        titulo: "Alfabetização",
-        texto:
-          "Aprender a ler e a escrever está levando mais tempo do que o esperado, ou a escola sinalizou que ela precisa de apoio nessa fase.",
-      },
-      {
-        icone: "atencao",
-        titulo: "Dificuldade de atenção e concentração",
-        texto:
-          "Ela se distrai com facilidade, perde o fio das tarefas e a lição de casa vira uma batalha longa todos os dias.",
-      },
-      {
-        icone: "adaptacao",
-        titulo: "Adaptação escolar",
-        texto:
-          "A entrada na escola, a troca de escola ou a mudança de etapa vem com choro, resistência ou insegurança que não passam com o tempo.",
-      },
+      "Apresenta dificuldades na leitura, na escrita ou na matemática;",
+      "Tem dificuldade para compreender o que lê ou para registrar suas ideias por escrito;",
+      "Precisa de muito apoio para iniciar, organizar ou concluir as atividades;",
+      "Apresenta dificuldades para manter a atenção ou lembrar informações necessárias para realizar uma tarefa;",
+      "Evita atividades escolares, demonstra frustração ou diz que “não consegue aprender”;",
+      "Dedica tempo aos estudos, mas ainda encontra dificuldades para acompanhar as propostas escolares;",
+      "Demonstra desmotivação com as tarefas escolares;",
+      "Tem desempenho escolar abaixo do esperado em relação às outras crianças da mesma idade.",
     ],
+    nota:
+      "Esses sinais podem aparecer de formas diferentes em cada criança e não indicam, por si só, um diagnóstico. A avaliação ajuda a compreender como ela aprende, identificar suas potencialidades e necessidades e orientar os próximos passos.",
+    fechamento:
+      "Se você tem dúvidas sobre a aprendizagem do seu filho ou recebeu alguma observação da escola, podemos conversar. Juntos, vamos buscar caminhos para apoiá-lo e ajudá-lo a superar seus desafios!",
   },
 
   // ===== Avaliações =====
@@ -438,34 +438,12 @@ export const conteudo: Conteudo = {
       {
         pergunta: "O que faz uma psicopedagoga?",
         resposta:
-          "A psicopedagoga investiga como a criança aprende e o que está dificultando esse processo. A partir de uma avaliação, planeja atividades para desenvolver o que precisa de apoio, como leitura, escrita, atenção e organização, e orienta a família e a escola. Como psicopedagoga clínica e institucional, a Thais atende no consultório e trabalha junto com a escola.",
+          "A psicopedagoga busca compreender como a criança aprende, quais são suas potencialidades e quais dificuldades podem estar interferindo nesse processo. Por meio da avaliação psicopedagógica, investiga diferentes aspectos da aprendizagem, como leitura, escrita, matemática, atenção, memória e organização. A partir dessa compreensão, planeja intervenções e utiliza jogos e recursos lúdicos para ajudar a criança a desenvolver habilidades e construir estratégias para aprender.",
       },
       {
-        pergunta: "Quando devo procurar?",
-        resposta:
-          "Quando uma dificuldade na escola se repete por um tempo e não melhora só com a ajuda de casa: leitura e escrita, alfabetização, atenção e concentração ou adaptação escolar. Às vezes é a própria escola que sugere. Se estiver em dúvida, a primeira conversa serve justamente para entender se o acompanhamento faz sentido para o seu filho.",
-      },
-      {
-        // A CONFIRMAR: formato da primeira conversa (segue o passo 1 do "Como funciona")
         pergunta: "Como é a primeira conversa?",
         resposta:
-          "É uma conversa com os pais. Vocês contam o que estão percebendo em casa e o que a escola tem relatado, tiram dúvidas e combinam os próximos passos. Para marcar, é só chamar a Thais no WhatsApp.",
-      },
-      {
-        pergunta: "Precisa de encaminhamento da escola?",
-        resposta:
-          "Não. Os pais podem entrar em contato diretamente. Se a escola já fez alguma observação ou relatório sobre a criança, vale levar para a primeira conversa, porque ajuda a entender melhor o que está acontecendo.",
-      },
-      {
-        // A CONFIRMAR: se há atendimento online
-        pergunta: "Atende online?",
-        resposta:
-          "O atendimento é presencial, no consultório da Pompeia, na R. Cotoxó, 303. Para saber se o seu caso pode ter encontros online, fale com a Thais pelo WhatsApp.",
-        link: { rotulo: "Abrir no Maps", link: linkGoogle },
-      },
-      {
-        pergunta: "Quanto custa?",
-        resposta: "Os valores são passados na primeira conversa, pelo WhatsApp.",
+          "É uma conversa com os pais. Vocês contam o que estão percebendo em casa e o que a escola tem relatado, tiram dúvidas e combinam os próximos passos.",
       },
     ],
   },
