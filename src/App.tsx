@@ -198,29 +198,16 @@ function Risco({ cor, className }: { cor: string; className?: string }) {
   )
 }
 
+/** Cabeçalho fixo, sempre na cor principal, com texto branco e o botão do WhatsApp em branco. */
 function Header() {
-  const [rolou, setRolou] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setRolou(window.scrollY > 24)
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
   const links = cabecalho.links.filter(({ link }) => secaoVisivel[link] ?? true)
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color] duration-300",
-        rolou ? "border-border bg-papel/92 backdrop-blur-md" : "border-transparent bg-transparent"
-      )}
-    >
+    <header className="fixed inset-x-0 top-0 z-50 bg-primary text-primary-foreground">
       <div className={cn(CONTAINER, "flex h-[4.5rem] items-center justify-between gap-6 lg:h-20")}>
         <a href="#topo" className="flex flex-col leading-none">
           <span className="titulo-item text-[1.3rem] sm:text-[1.4rem]">{negocio.nome}</span>
-          <span className="mt-1 text-sm text-tinta-suave">{negocio.profissaoCurta}</span>
+          <span className="mt-1 text-sm">{negocio.profissaoCurta}</span>
         </a>
 
         <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
@@ -228,7 +215,7 @@ function Header() {
             <a
               key={link}
               href={link}
-              className="text-[0.98rem] text-tinta-suave transition-colors hover:text-foreground"
+              className="text-[0.98rem] underline-offset-4 transition-opacity hover:underline hover:opacity-85"
             >
               {rotulo}
             </a>
@@ -236,7 +223,10 @@ function Header() {
         </nav>
 
         {temWhatsapp && (
-          <Botao href={WHATSAPP_URL} className="hidden h-11 gap-2 px-5 text-[0.95rem] sm:inline-flex">
+          <Botao
+            href={WHATSAPP_URL}
+            className="hidden h-11 gap-2 bg-white px-5 text-[0.95rem] text-primary hover:bg-white/85 sm:inline-flex"
+          >
             <FaWhatsapp className="size-[1.1rem]" aria-hidden /> {botoes.principal}
           </Botao>
         )}
