@@ -490,6 +490,10 @@ export const conteudo: Conteudo = {
           "Cada sessão tem a duração de 50 minutos. Ao longo do acompanhamento psicopedagógico, são realizados também atendimentos com a família e a equipe escolar para alinhar objetivos e estratégias para apoiar o desenvolvimento da criança.",
       },
       {
+        pergunta: "O atendimento é online ou presencial?",
+        resposta: "Somente atendimentos presenciais, no consultório na Pompeia.",
+      },
+      {
         pergunta: "Como é a primeira conversa?",
         resposta:
           "É uma conversa com os pais. Vocês contam o que estão percebendo em casa e o que a escola tem relatado, tiram dúvidas e combinam os próximos passos.",
