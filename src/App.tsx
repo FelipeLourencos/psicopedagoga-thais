@@ -12,7 +12,7 @@ import {
   Star,
   type LucideIcon,
 } from "lucide-react"
-import { FaWhatsapp } from "react-icons/fa"
+import { FaInstagram, FaWhatsapp } from "react-icons/fa"
 import { MotionConfig, motion, useReducedMotion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
@@ -302,9 +302,9 @@ function Topo() {
           )}
           <motion.div {...entrada(2)} className="mt-9 flex flex-col gap-3 sm:flex-row">
             <BotaoWhatsapp />
-            {botoes.secundario && temAvaliacoes && (
-              <Botao href="#avaliacoes" variante="contorno">
-                {botoes.secundario}
+            {botoes.secundario && negocio.instagram.link && (
+              <Botao href={negocio.instagram.link} variante="contorno">
+                <FaInstagram className="size-[1.2rem]" aria-hidden /> {botoes.secundario}
               </Botao>
             )}
           </motion.div>

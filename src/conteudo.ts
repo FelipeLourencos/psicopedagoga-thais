@@ -54,9 +54,9 @@ export type Selo = {
 export type Avaliacao = {
   /** Quem avaliou, ou um rótulo como "Família atendida". Nunca use nome de criança. */
   autor: string
-  /** Etiqueta discreta com a origem. Ex.: "Avaliação no Google", "Mensagem de uma família". */
+  /** Etiqueta discreta com a origem. Ex.: "Avaliação no Google", "Feedback no Instagram". */
   fonte: string
-  /** Mostra as 5 estrelas. Use só em avaliações com nota (Google); mensagens não têm nota. */
+  /** Mostra as 5 estrelas no canto superior esquerdo do card. */
   estrelas: boolean
   texto: string
 }
@@ -112,7 +112,7 @@ export type Conteudo = {
   botoes: {
     /** WhatsApp: topo, cabeçalho e final. */
     principal: string
-    /** Botão secundário do topo, que leva às avaliações. "" esconde. */
+    /** Botão secundário do topo, que abre o Instagram (negocio.instagram.link). "" esconde. */
     secundario: string
     /** Texto lido por leitores de tela no botão flutuante do WhatsApp (só no celular). "" esconde o botão. */
     flutuante: string
@@ -284,7 +284,7 @@ export const conteudo: Conteudo = {
   // ===== Botões =====
   botoes: {
     principal: "Agendar uma conversa",
-    secundario: "Ver avaliações",
+    secundario: "Instagram",
     flutuante: "Conversar com a Thais no WhatsApp",
   },
 
@@ -443,22 +443,22 @@ export const conteudo: Conteudo = {
       },
       {
         autor: "Família atendida",
-        fonte: "Mensagem de uma família",
-        estrelas: false,
+        fonte: "Feedback no Instagram",
+        estrelas: true,
         texto:
           "Olá! Passando aqui para compartilhar o progress report [da nossa filha], gente, que alegria, muitos A e B e somente 1 C. Thaís, gratidão por todo o trabalho, empenho e dedicação desde sempre.",
       },
       {
         autor: "Família atendida",
-        fonte: "Mensagem de uma família",
-        estrelas: false,
+        fonte: "Feedback no Instagram",
+        estrelas: true,
         texto:
           "Hoje está sendo a minha GRATIDÃO por tudo que está acontecendo com [ela]. Obrigada pela profissional de excelência que está sendo para ela no aprendizado. Gratidão!",
       },
       {
         autor: "Família atendida",
-        fonte: "Mensagem de uma família",
-        estrelas: false,
+        fonte: "Feedback no Instagram",
+        estrelas: true,
         texto:
           "Gostaria de agradecer formalmente pela parceria, pelo profissionalismo e pelas orientações tão assertivas que nos deu nos últimos meses. O seu trabalho psicopedagógico foi um divisor de águas. Ele nos deu as ferramentas certas para compreender e apoiar as necessidades de desenvolvimento da nossa filha, integrando de forma leve a escola e a rotina de estudos. Parabéns pelo trabalho tão nobre e essencial. Nossa eterna gratidão!",
       },
